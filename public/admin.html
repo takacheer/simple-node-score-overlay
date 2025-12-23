@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Overlay Controller</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
+        .control-panel { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .row { display: flex; gap: 15px; margin-bottom: 15px; }
+        .col { flex: 1; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em; }
+        input { width: 100%; padding: 8px; margin-bottom: 5px; box-sizing: border-box; }
+        button {
+            width: 100%; padding: 15px; font-size: 1.2em; font-weight: bold;
+            background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:active { background-color: #0056b3; transform: scale(0.98); }
+    </style>
+</head>
+<body>
+    <div class="control-panel">
+        <h2 style="text-align:center;">Score Control</h2>
+        
+        <div class="row">
+            <div class="col">
+                <h3 style="color:#007bff; margin:0 0 10px 0;">LEFT TEAM</h3>
+                <input type="text" id="inputNameLeft" placeholder="Name" value="TEAM A">
+                <input type="number" id="inputScoreLeft" placeholder="Score" value="0">
+            </div>
+            <div class="col">
+                <h3 style="color:#dc3545; margin:0 0 10px 0;">RIGHT TEAM</h3>
+                <input type="text" id="inputNameRight" placeholder="Name" value="TEAM B">
+                <input type="number" id="inputScoreRight" placeholder="Score" value="0">
+            </div>
+        </div>
+
+        <label>Logo URL</label>
+        <input type="text" id="inputLogo" placeholder="http://..." style="margin-bottom: 20px;">
+
+        <button onclick="sendData()">UPDATE STREAM</button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        
+        socket.on('updateOverlay', (data) => {
+            document.getElementById('inputNameLeft').value = data.nameLeft;
+            document.getElementById('inputScoreLeft').value = data.scoreLeft;
+            document.getElementById('inputNameRight').value = data.nameRight;
+            document.getElementById('inputScoreRight').value = data.scoreRight;
+            document.getElementById('inputLogo').value = data.logoUrl;
+        });
+
+        function sendData() {
+            const data = {
+                nameLeft: document.getElementById('inputNameLeft').value,
+                scoreLeft: document.getElementById('inputScoreLeft').value,
+                nameRight: document.getElementById('inputNameRight').value,
+                scoreRight: document.getElementById('inputScoreRight').value,
+                logoUrl: document.getElementById('inputLogo').value
+            };
+            
+            socket.emit('sendUpdate', data);
+        }
+    </script>
+</body>
+</html>

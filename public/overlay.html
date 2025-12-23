@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Stream Overlay</title>
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; background-color: transparent; }
+        .container {
+            width: 1920px; height: 110px;
+            display: flex; justify-content: space-between; align-items: center;
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            color: white; font-weight: bold; text-transform: uppercase;
+        }
+        .team-panel {
+            flex: 1; display: flex; align-items: center; height: 100%;
+            background: linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 100%);
+            padding: 0 40px;
+        }
+        .team-panel.right {
+            flex-direction: row-reverse;
+            background: linear-gradient(-90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 100%);
+            text-align: right;
+        }
+        .team-name {
+            font-size: 40px; flex-grow: 1; margin: 0 20px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .score {
+            font-size: 60px; width: 80px; text-align: center;
+            color: #ffeb3b; text-shadow: 2px 2px 0 #000;
+        }
+        .center-logo {
+            width: 200px; height: 100%;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .center-logo img {
+            max-height: 100px; max-width: 180px; object-fit: contain;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="team-panel left">
+            <div class="score" id="scoreLeft">0</div>
+            <div class="team-name" id="nameLeft">TEAM A</div>
+        </div>
+        <div class="center-logo">
+            <img src="" alt="Logo" id="tournamentLogo">
+        </div>
+        <div class="team-panel right">
+            <div class="score" id="scoreRight">0</div>
+            <div class="team-name" id="nameRight">TEAM B</div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        
+        socket.on('updateOverlay', (data) => {
+            document.getElementById('nameLeft').textContent = data.nameLeft;
+            document.getElementById('scoreLeft').textContent = data.scoreLeft;
+            document.getElementById('nameRight').textContent = data.nameRight;
+            document.getElementById('scoreRight').textContent = data.scoreRight;
+
+            const logoImg = document.getElementById('tournamentLogo');
+            if (data.logoUrl && data.logoUrl.trim() !== "") {
+                logoImg.src = data.logoUrl;
+                logoImg.style.display = "block";
+            } else {
+                logoImg.style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>
