@@ -93,6 +93,10 @@
             };
             socket.emit('sendUpdate', data);
         }
+
+        document.getElementById('checkVisible').addEventListener('change', function() {
+            sendData();
+        });
     </script>
 </body>
 </html>
