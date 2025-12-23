@@ -9,44 +9,72 @@
         .row { display: flex; gap: 15px; margin-bottom: 15px; }
         .col { flex: 1; }
         label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em; }
-        input { width: 100%; padding: 8px; margin-bottom: 5px; box-sizing: border-box; }
-        button {
+        input[type="text"], input[type="number"] { width: 100%; padding: 8px; margin-bottom: 5px; box-sizing: border-box; }
+        
+        .update-btn {
             width: 100%; padding: 15px; font-size: 1.2em; font-weight: bold;
             background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;
             transition: background-color 0.2s;
         }
-        button:active { background-color: #0056b3; transform: scale(0.98); }
+        .update-btn:hover { background-color: #0056b3; }
+
+        .visibility-control {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #e9ecef; padding: 10px; border-radius: 5px; margin-bottom: 20px;
+        }
+        .switch {
+            position: relative; display: inline-block; width: 60px; height: 34px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc; transition: .4s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px;
+            background-color: white; transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #28a745; }
+        input:checked + .slider:before { transform: translateX(26px); }
     </style>
 </head>
 <body>
     <div class="control-panel">
-        <h2 style="text-align:center;">Score Control</h2>
+        <div class="visibility-control">
+            <span style="font-weight:bold; font-size:1.1em;">OVERLAY VISIBILITY</span>
+            <label class="switch">
+                <input type="checkbox" id="checkVisible">
+                <span class="slider"></span>
+            </label>
+        </div>
+
+        <h2 style="text-align:center; margin-top:0;">Score Control</h2>
         
         <div class="row">
             <div class="col">
                 <h3 style="color:#007bff; margin:0 0 10px 0;">LEFT TEAM</h3>
-                <input type="text" id="inputNameLeft" placeholder="Name" value="TEAM A">
-                <input type="number" id="inputScoreLeft" placeholder="Score" value="0">
+                <input type="text" id="inputNameLeft" placeholder="Name">
+                <input type="number" id="inputScoreLeft" placeholder="Score">
             </div>
             <div class="col">
                 <h3 style="color:#dc3545; margin:0 0 10px 0;">RIGHT TEAM</h3>
-                <input type="text" id="inputNameRight" placeholder="Name" value="TEAM B">
-                <input type="number" id="inputScoreRight" placeholder="Score" value="0">
+                <input type="text" id="inputNameRight" placeholder="Name">
+                <input type="number" id="inputScoreRight" placeholder="Score">
             </div>
         </div>
 
         <label>Logo URL</label>
         <input type="text" id="inputLogo" placeholder="http://..." style="margin-bottom: 20px;">
 
-        <button onclick="sendData()">UPDATE STREAM</button>
+        <button class="update-btn" onclick="sendData()">UPDATE STREAM</button>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
 
-        
         socket.on('updateOverlay', (data) => {
+            document.getElementById('checkVisible').checked = data.isVisible;
             document.getElementById('inputNameLeft').value = data.nameLeft;
             document.getElementById('inputScoreLeft').value = data.scoreLeft;
             document.getElementById('inputNameRight').value = data.nameRight;
@@ -56,13 +84,13 @@
 
         function sendData() {
             const data = {
+                isVisible: document.getElementById('checkVisible').checked, 
                 nameLeft: document.getElementById('inputNameLeft').value,
                 scoreLeft: document.getElementById('inputScoreLeft').value,
                 nameRight: document.getElementById('inputNameRight').value,
                 scoreRight: document.getElementById('inputScoreRight').value,
                 logoUrl: document.getElementById('inputLogo').value
             };
-            
             socket.emit('sendUpdate', data);
         }
     </script>

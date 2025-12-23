@@ -5,42 +5,81 @@
     <title>Stream Overlay</title>
     <style>
         body { margin: 0; padding: 0; overflow: hidden; background-color: transparent; }
+
         .container {
-            width: 1920px; height: 110px;
-            display: flex; justify-content: space-between; align-items: center;
+            width: 1920px;
+            height: 110px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             font-family: "Helvetica Neue", Arial, sans-serif;
-            color: white; font-weight: bold; text-transform: uppercase;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            transform: translateY(110%); 
+            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
         }
+
+        .container.visible {
+            transform: translateY(0);
+        }
+
         .team-panel {
             flex: 1; display: flex; align-items: center; height: 100%;
-            background: linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 100%);
+            background: linear-gradient(90deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 100%);
             padding: 0 40px;
+            overflow: hidden; 
         }
         .team-panel.right {
             flex-direction: row-reverse;
-            background: linear-gradient(-90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 100%);
+            background: linear-gradient(-90deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 100%);
             text-align: right;
         }
+
         .team-name {
             font-size: 40px; flex-grow: 1; margin: 0 20px;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: all 0.6s ease-out;
         }
+        .team-panel.right .team-name {
+            transform: translateX(30px); 
+        }
+
+        .container.visible .team-name {
+            opacity: 1;
+            transform: translateX(0);
+            transition-delay: 0.3s; 
+        }
+
         .score {
             font-size: 60px; width: 80px; text-align: center;
             color: #ffeb3b; text-shadow: 2px 2px 0 #000;
+            
+            opacity: 0;
+            transition: opacity 0.6s ease;
         }
+
+        .container.visible .score {
+            opacity: 1;
+            transition-delay: 0.5s; 
+        }
+
         .center-logo {
             width: 230px; height: 100%;
             display: flex; justify-content: center; align-items: center;
-            background: linear-gradient(-90deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.5) 100%);
+            background: linear-gradient(-90deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.6) 100%);
         }
         .center-logo img {
-            max-height: 100px; max-width: 3000px; object-fit: contain;
+            max-height: 100px; max-width: 300px; object-fit: contain;
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="mainOverlay">
         <div class="team-panel left">
             <div class="score" id="scoreLeft">0</div>
             <div class="team-name" id="nameLeft">TEAM A</div>
@@ -57,8 +96,8 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
+        const overlay = document.getElementById('mainOverlay');
 
-        
         socket.on('updateOverlay', (data) => {
             document.getElementById('nameLeft').textContent = data.nameLeft;
             document.getElementById('scoreLeft').textContent = data.scoreLeft;
@@ -71,6 +110,12 @@
                 logoImg.style.display = "block";
             } else {
                 logoImg.style.display = "none";
+            }
+
+            if (data.isVisible) {
+                overlay.classList.add('visible');
+            } else {
+                overlay.classList.remove('visible');
             }
         });
     </script>
